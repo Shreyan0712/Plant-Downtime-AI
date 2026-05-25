@@ -14,15 +14,25 @@ Run order (TWO terminals, from project root C:\\Internship\\Plant_Downtime_API):
     2)  streamlit run frontend_app.py
 Requires plotly:  pip install plotly
 """
-
 from __future__ import annotations
+
+import sys, os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import pandas as pd
 import requests
 import streamlit as st
 
-import frontend.workspace as ws
-import frontend.crud_forms as crud_forms
+import workspace as ws
+import crud_forms
+
+
+import pandas as pd
+import requests
+import streamlit as st
+
+import workspace as ws
+import crud_forms as crud_forms
 
 
 # PAGE CONFIG

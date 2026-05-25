@@ -253,7 +253,7 @@ uvicorn app.main:app --reload
 ## 6. Run Streamlit Frontend
 
 ```bash
-streamlit run streamlit_app.py
+streamlit run frontend/streamlit_app.py
 ```
 
 ---
