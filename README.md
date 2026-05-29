@@ -7,6 +7,7 @@ An AI-powered conversational database management system for industrial downtime 
 - MCP (Model Context Protocol)
 - LangChain Agents
 - Streamlit
+- Angular
 
 ---
 
@@ -62,6 +63,7 @@ The AI system dynamically selects and executes tools using MCP and LangChain age
 
 ## Frontend
 - Streamlit
+- Angular
 
 ---
 
