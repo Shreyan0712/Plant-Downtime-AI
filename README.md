@@ -260,6 +260,14 @@ streamlit run frontend/streamlit_app.py
 
 ---
 
+## 7. Run Angular Frontend
+
+```bash
+ng.serve
+```
+
+---
+
 # Learning Outcomes
 
 This project explored:
