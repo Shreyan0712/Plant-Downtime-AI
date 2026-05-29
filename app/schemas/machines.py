@@ -1,6 +1,7 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from typing import Optional
 import datetime
+
 
 class MachineCreate(BaseModel):
 
@@ -14,6 +15,13 @@ class MachineCreate(BaseModel):
 
     status: Optional[str] = None
 
+    @field_validator("status")
+    @classmethod
+    def normalize_status(cls, v):
+        if v is None:
+            return v
+        return v.strip().capitalize()
+
 class MachineUpdate(BaseModel):
 
     machine_name: Optional[str] = None
@@ -25,3 +33,10 @@ class MachineUpdate(BaseModel):
     install_date: Optional[datetime.date] = None
 
     status: Optional[str] = None
+
+    @field_validator("status")
+    @classmethod
+    def normalize_status(cls, v):
+        if v is None:
+            return v
+        return v.strip().capitalize()

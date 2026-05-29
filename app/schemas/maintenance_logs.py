@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from typing import Optional
 import datetime
 
@@ -16,6 +16,13 @@ class MaintenanceLogCreate(BaseModel):
 
     technician: Optional[str] = None
 
+    @field_validator("maintenance_type")
+    @classmethod
+    def normalize_maintenance_type(cls, v):
+        if v is None:
+            return v
+        return v.strip().capitalize()
+
 class MaintenanceLogUpdate(BaseModel):
     
     machine_id: int
@@ -29,3 +36,10 @@ class MaintenanceLogUpdate(BaseModel):
     work_done: Optional[str] = None
 
     technician: Optional[str] = None
+
+    @field_validator("maintenance_type")
+    @classmethod
+    def normalize_maintenance_type(cls, v):
+        if v is None:
+            return v
+        return v.strip().capitalize()

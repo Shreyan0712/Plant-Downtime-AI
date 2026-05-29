@@ -1,0 +1,106 @@
+<div class="text-2xl font-bold mb-1">
+  @switch (table) {
+    @case ('machines')    { Machines }
+    @case ('maintenance') { Maintenance Logs }
+    @case ('downtime')    { Downtime Events }
+    @case ('causes')      { Downtime Causes }
+  }
+  — Add / Update / Delete
+</div>
+
+<!-- mode tabs -->
+<div class="flex gap-2 mb-4 border-b border-[var(--border-soft)]">
+  <button (click)="setMode('add')"    class="px-4 py-2 font-semibold" [class.border-b-2]="mode()==='add'"    [class.border-\[var\(--accent\)\]]="mode()==='add'">➕ Add</button>
+  <button (click)="setMode('update')" class="px-4 py-2 font-semibold" [class.border-b-2]="mode()==='update'" [class.border-\[var\(--accent\)\]]="mode()==='update'">✏️ Update</button>
+  <button (click)="setMode('delete')" class="px-4 py-2 font-semibold" [class.border-b-2]="mode()==='delete'" [class.border-\[var\(--accent\)\]]="mode()==='delete'">🗑️ Delete</button>
+</div>
+
+<!-- form card -->
+<div class="rounded-2xl border border-[var(--border-soft)] bg-[var(--bg-elev)] p-6">
+
+  <!-- ID field for update/delete -->
+  @if (mode() !== 'add') {
+    <div class="mb-4">
+      <label class="block text-xs text-[var(--text-faint)] mb-1">Record ID *</label>
+      <input type="number" [(ngModel)]="recordId"
+             class="w-full px-3 py-2 rounded-lg" />
+    </div>
+  }
+
+  @if (mode() !== 'delete') {
+    @switch (table) {
+
+      @case ('machines') {
+        <div class="grid grid-cols-2 gap-4">
+          <div><label class="block text-xs text-[var(--text-faint)] mb-1">Machine Name {{ mode()==='add' ? '*' : '' }}</label>
+            <input [(ngModel)]="form.machine_name" class="w-full px-3 py-2 rounded-lg" /></div>
+          <div><label class="block text-xs text-[var(--text-faint)] mb-1">Status</label>
+            <select [(ngModel)]="form.status" class="w-full px-3 py-2 rounded-lg">
+              <option value="">—</option><option>Running</option><option>Idle</option><option>Down</option><option>Maintenance</option>
+            </select></div>
+          <div><label class="block text-xs text-[var(--text-faint)] mb-1">Location</label>
+            <input [(ngModel)]="form.location" class="w-full px-3 py-2 rounded-lg" /></div>
+          <div><label class="block text-xs text-[var(--text-faint)] mb-1">Category</label>
+            <input [(ngModel)]="form.category" class="w-full px-3 py-2 rounded-lg" /></div>
+          <div><label class="block text-xs text-[var(--text-faint)] mb-1">Install Date</label>
+            <input type="date" [(ngModel)]="form.install_date" class="w-full px-3 py-2 rounded-lg" /></div>
+        </div>
+      }
+
+      @case ('maintenance') {
+        <div class="grid grid-cols-2 gap-4">
+          <div><label class="block text-xs text-[var(--text-faint)] mb-1">Machine ID *</label>
+            <input type="number" [(ngModel)]="form.machine_id" class="w-full px-3 py-2 rounded-lg" /></div>
+          <div><label class="block text-xs text-[var(--text-faint)] mb-1">Maintenance Type</label>
+            <input [(ngModel)]="form.maintenance_type" class="w-full px-3 py-2 rounded-lg" placeholder="Planned / Unplanned / Repair…" /></div>
+          <div><label class="block text-xs text-[var(--text-faint)] mb-1">Technician</label>
+            <input [(ngModel)]="form.technician" class="w-full px-3 py-2 rounded-lg" /></div>
+          <div><label class="block text-xs text-[var(--text-faint)] mb-1">Work Done</label>
+            <input [(ngModel)]="form.work_done" class="w-full px-3 py-2 rounded-lg" /></div>
+          <div><label class="block text-xs text-[var(--text-faint)] mb-1">Start Time (YYYY-MM-DDTHH:MM:SS)</label>
+            <input [(ngModel)]="form.start_time" class="w-full px-3 py-2 rounded-lg" placeholder="2026-05-26T09:00:00" /></div>
+          <div><label class="block text-xs text-[var(--text-faint)] mb-1">End Time (YYYY-MM-DDTHH:MM:SS)</label>
+            <input [(ngModel)]="form.end_time" class="w-full px-3 py-2 rounded-lg" placeholder="2026-05-26T10:00:00" /></div>
+        </div>
+      }
+
+      @case ('downtime') {
+        <div class="grid grid-cols-2 gap-4">
+          <div><label class="block text-xs text-[var(--text-faint)] mb-1">Machine ID *</label>
+            <input type="number" [(ngModel)]="form.machine_id" class="w-full px-3 py-2 rounded-lg" /></div>
+          <div><label class="block text-xs text-[var(--text-faint)] mb-1">Reason Category</label>
+            <input [(ngModel)]="form.reason_category" class="w-full px-3 py-2 rounded-lg" /></div>
+          <div><label class="block text-xs text-[var(--text-faint)] mb-1">Start Time</label>
+            <input [(ngModel)]="form.start_time" class="w-full px-3 py-2 rounded-lg" placeholder="2026-05-26T09:00:00" /></div>
+          <div><label class="block text-xs text-[var(--text-faint)] mb-1">End Time</label>
+            <input [(ngModel)]="form.end_time" class="w-full px-3 py-2 rounded-lg" placeholder="2026-05-26T10:00:00" /></div>
+        </div>
+      }
+
+      @case ('causes') {
+        <div class="grid grid-cols-2 gap-4">
+          <div><label class="block text-xs text-[var(--text-faint)] mb-1">Downtime ID *</label>
+            <input type="number" [(ngModel)]="form.downtime_id" class="w-full px-3 py-2 rounded-lg" /></div>
+          <div class="col-span-2"><label class="block text-xs text-[var(--text-faint)] mb-1">Root Cause</label>
+            <input [(ngModel)]="form.root_cause" class="w-full px-3 py-2 rounded-lg" /></div>
+        </div>
+      }
+    }
+  }
+
+  @if (mode() === 'delete') {
+    <label class="flex items-center gap-2 mt-4 text-sm">
+      <input type="checkbox" [(ngModel)]="confirmDelete" />
+      I understand this deletion is permanent.
+    </label>
+  }
+
+  <button (click)="submit()" [disabled]="busy()"
+          class="mt-6 w-full px-4 py-2 rounded-lg bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-[var(--on-accent)] font-bold disabled:opacity-50">
+    {{ busy() ? 'Working…' : (mode() === 'add' ? 'Add' : mode() === 'update' ? 'Update' : 'Delete') }}
+  </button>
+
+  @if (message()) {
+    <div class="mt-4 text-sm" [class.text-red-400]="message().startsWith('Error')">{{ message() }}</div>
+  }
+</div>

@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+:root {
+  --bg:           #1a1d23;   /* near-black, slightly warm */
+  --bg-elev:     #242830;   /* card surfaces */
+  --bg-elev-2:   #2e333d;   /* hover states */
+  --sidebar:     #14171c;   /* deepest — sidebar + chat panel */
+  --border:      #2e333d;
+  --border-soft: #232730;
+  --text:        #e8e6e3;   /* warm off-white */
+  --text-muted:  #a8a59f;
+  --text-faint:  #6b6a66;
+  --accent:      #d97757;   /* warm copper/burnt orange */
+  --accent-hover:#e5896c;
+  --accent-soft: #d977571a;
+  --on-accent:   #1a1d23;
+}
+
+html, body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* scrollbars */
+* { scrollbar-color: var(--border) transparent; scrollbar-width: thin; }
+*::-webkit-scrollbar { width: 8px; height: 8px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+*::-webkit-scrollbar-thumb:hover { background: var(--text-faint); }
+
+button { transition: all 0.15s ease; }
+
+input, select, textarea {
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  color: var(--text);
+  transition: border-color 0.15s ease;
+}
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.card {
+  background: var(--bg-elev);
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
+}

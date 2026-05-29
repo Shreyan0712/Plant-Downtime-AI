@@ -1,0 +1,181 @@
+<div class="flex h-screen text-[15px]">
+
+  <!-- SIDEBAR -->
+  <aside class="w-64 shrink-0 bg-[var(--sidebar)] border-r border-[var(--border-soft)] flex flex-col">
+
+    <div class="px-5 py-5 border-b border-[var(--border-soft)]">
+      <div class="text-base font-semibold flex items-center gap-2">
+        <span class="inline-block w-2 h-2 rounded-full bg-[var(--accent)]"></span>
+        Plant Downtime
+      </div>
+      <div class="text-xs text-[var(--text-faint)] mt-1">Operations Console</div>
+    </div>
+
+    <nav class="flex-1 px-3 py-4 flex flex-col gap-1 overflow-y-auto">
+      <button (click)="showWorkspace()"
+              class="text-left px-3 py-2 rounded-md text-sm font-medium text-[var(--text-muted)] hover:bg-[var(--bg-elev)] hover:text-[var(--text)]"
+              [class.bg-\[var\(--bg-elev\)\]]="viewMode() === 'workspace'"
+              [class.text-\[var\(--text\)\]]="viewMode() === 'workspace'">
+        <span class="inline-block w-1 h-4 rounded-full mr-2 align-middle"
+              [class.bg-\[var\(--accent\)\]]="viewMode() === 'workspace'"></span>
+        Workspace
+      </button>
+
+      <div class="text-[11px] uppercase tracking-wider text-[var(--text-faint)] mt-5 mb-2 px-3">Manage</div>
+
+      <button (click)="manage('machines')"    class="text-left px-3 py-2 rounded-md text-sm text-[var(--text-muted)] hover:bg-[var(--bg-elev)] hover:text-[var(--text)]">Machines</button>
+      <button (click)="manage('maintenance')" class="text-left px-3 py-2 rounded-md text-sm text-[var(--text-muted)] hover:bg-[var(--bg-elev)] hover:text-[var(--text)]">Maintenance Logs</button>
+      <button (click)="manage('downtime')"    class="text-left px-3 py-2 rounded-md text-sm text-[var(--text-muted)] hover:bg-[var(--bg-elev)] hover:text-[var(--text)]">Downtime Events</button>
+      <button (click)="manage('causes')"      class="text-left px-3 py-2 rounded-md text-sm text-[var(--text-muted)] hover:bg-[var(--bg-elev)] hover:text-[var(--text)]">Downtime Causes</button>
+    </nav>
+
+    <div class="px-5 py-3 border-t border-[var(--border-soft)] text-[11px] text-[var(--text-faint)]">
+      Industrial AI · v1.0
+    </div>
+  </aside>
+
+  <!-- MAIN AREA -->
+  <main class="flex-1 flex overflow-hidden">
+
+    <section class="flex-1 overflow-y-auto">
+
+      <!-- TOP HEADER BAR -->
+      <header class="px-8 py-5 border-b border-[var(--border-soft)] flex items-center justify-between bg-[var(--bg)] sticky top-0 z-10">
+        <div>
+          <div class="text-xl font-semibold">
+            @if (viewMode() === 'workspace') {
+              {{ view()?.title || 'Workspace' }}
+            } @else {
+              Manage Records
+            }
+          </div>
+          <div class="text-xs text-[var(--text-faint)] mt-0.5">
+            @if (viewMode() === 'workspace') {
+              Live operational data
+            } @else {
+              Add, update, or remove records
+            }
+          </div>
+        </div>
+        @if (viewMode() === 'manage') {
+          <button (click)="showWorkspace()" class="text-sm text-[var(--text-muted)] hover:text-[var(--text)]">← Back to Workspace</button>
+        }
+      </header>
+
+      <div class="p-8">
+
+        @if (viewMode() === 'workspace') {
+
+          @if (view(); as v) {
+
+            <!-- STAT CARDS -->
+            <div class="grid grid-cols-4 gap-4 mb-8">
+              @for (box of v.infoBoxes; track box.title) {
+                <div class="card p-5">
+                  <div class="text-[11px] uppercase tracking-wider text-[var(--text-faint)] mb-2">{{ box.title }}</div>
+                  <div class="text-3xl font-bold text-[var(--text)]">{{ box.stat }}</div>
+                  <div class="text-xs text-[var(--text-muted)] mt-1">{{ box.body }}</div>
+                </div>
+              }
+            </div>
+
+            <!-- TABLE CARD -->
+            <div class="card mb-8 overflow-hidden">
+              <div class="px-5 py-3 border-b border-[var(--border-soft)] flex items-center justify-between">
+                <div class="text-sm font-semibold">Records</div>
+                <div class="text-xs text-[var(--text-faint)]">{{ v.rows.length }} entries</div>
+              </div>
+              <div class="overflow-auto" style="max-height:420px">
+                <table class="w-full text-sm">
+                  <thead class="bg-[var(--bg-elev-2)] text-[var(--text-muted)] text-[12px] uppercase tracking-wider sticky top-0">
+                    <tr>
+                      @for (col of v.columns; track col) {
+                        <th class="text-left px-5 py-3 font-medium border-b border-[var(--border-soft)]">{{ col }}</th>
+                      }
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (row of v.rows; track $index) {
+                      <tr class="border-b border-[var(--border-soft)] last:border-0 hover:bg-[var(--bg-elev-2)]">
+                        @for (col of v.columns; track col) {
+                          <td class="px-5 py-3 text-[var(--text)]">{{ row[col] }}</td>
+                        }
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- CHARTS -->
+            @if (v.charts.length) {
+              <div class="text-[11px] uppercase tracking-wider text-[var(--text-faint)] mb-3">Visual Analytics</div>
+              <div class="flex flex-col gap-4">
+                @for (chart of v.charts; track chart.title) {
+                  <app-chart-card [chart]="chart"></app-chart-card>
+                }
+              </div>
+            }
+
+          } @else {
+            <div class="text-[var(--text-faint)]">Loading…</div>
+          }
+
+        } @else {
+          <app-crud-forms
+            [table]="manageTable()"
+            (refreshed)="onCrudRefreshed($event)">
+          </app-crud-forms>
+        }
+
+      </div>
+    </section>
+
+    <!-- CHAT PANEL -->
+    <aside class="w-[380px] shrink-0 border-l border-[var(--border-soft)] flex flex-col bg-[var(--sidebar)]">
+      <div class="px-5 py-4 border-b border-[var(--border-soft)]">
+        <div class="text-sm font-semibold">AI Assistant</div>
+        <div class="text-xs text-[var(--text-faint)] mt-0.5">Natural-language operations</div>
+      </div>
+
+      <div class="flex-1 overflow-y-auto p-4 space-y-3">
+        @if (messages().length === 0) {
+          <div class="text-[var(--text-faint)] text-sm">
+            Try: <span class="text-[var(--text)]">"show me maintenance logs"</span> or
+            <span class="text-[var(--text)]">"add a machine called X"</span>
+          </div>
+        }
+        @for (m of messages(); track $index) {
+          <div [class.text-right]="m.role === 'user'">
+            <div class="inline-block max-w-[85%] px-3 py-2 rounded-lg text-sm"
+                 [style.background-color]="m.role === 'user' ? 'var(--accent)' : 'var(--bg-elev)'"
+                 [style.color]="m.role === 'user' ? 'var(--on-accent)' : 'var(--text)'"
+                 [style.fontWeight]="m.role === 'user' ? 500 : 400">
+              {{ m.content }}
+            </div>
+          </div>
+        }
+        @if (loading()) {
+          <div class="text-[var(--text-faint)] text-sm flex items-center gap-2">
+            <span class="inline-block w-2 h-2 rounded-full bg-[var(--accent)] animate-pulse"></span>
+            Thinking…
+          </div>
+        }
+      </div>
+
+      <div class="p-4 border-t border-[var(--border-soft)]">
+        <div class="flex gap-2">
+          <input [ngModel]="draft()" (ngModelChange)="draft.set($event)"
+                 (keyup.enter)="send()"
+                 placeholder="Type a message…"
+                 class="flex-1 px-3 py-2 rounded-md text-sm" />
+          <button (click)="send()"
+                  class="px-4 py-2 rounded-md bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-[var(--on-accent)] text-sm font-medium">
+            Send
+          </button>
+        </div>
+      </div>
+    </aside>
+
+  </main>
+</div>

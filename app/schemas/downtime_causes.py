@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from typing import Optional
 
 
@@ -14,6 +14,13 @@ class DowntimeCauseCreate(BaseModel):
 
     preventive_action: Optional[str] = None
 
+    @field_validator("category")
+    @classmethod
+    def normalize_category(cls, v):
+        if v is None:
+            return v
+        return v.strip().capitalize()
+
 
 class DowntimeCauseUpdate(BaseModel):
 
@@ -26,3 +33,10 @@ class DowntimeCauseUpdate(BaseModel):
     corrective_action: Optional[str] = None
 
     preventive_action: Optional[str] = None
+
+    @field_validator("category")
+    @classmethod
+    def normalize_category(cls, v):
+        if v is None:
+            return v
+        return v.strip().capitalize()

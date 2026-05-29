@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from typing import Optional
 import datetime
 
@@ -19,6 +19,13 @@ class DowntimeEventCreate(BaseModel):
 
     reported_by: Optional[str] = None
 
+    @field_validator("reason_category")
+    @classmethod
+    def normalize_reason_category(cls, v):
+        if v is None:
+            return v
+        return v.strip().capitalize()
+
 
 class DowntimeEventUpdate(BaseModel):
 
@@ -35,3 +42,10 @@ class DowntimeEventUpdate(BaseModel):
     reason_details: Optional[str] = None
 
     reported_by: Optional[str] = None
+
+    @field_validator("reason_category")
+    @classmethod
+    def normalize_reason_category(cls, v):
+        if v is None:
+            return v
+        return v.strip().capitalize()

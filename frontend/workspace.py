@@ -92,7 +92,6 @@ def _num(series) -> pd.Series:
 
 
 def _bar_from_counts(series, value_name: str) -> go.Figure:
-    """Colorful bar chart from a categorical column's value_counts."""
     vc = series.fillna("Unknown").value_counts()
     fig = px.bar(
         x=vc.index.astype(str), y=vc.values,
@@ -262,46 +261,69 @@ def _reply(n: int, noun: str, live: bool) -> str:
     return f"Loaded {n} {noun}(s) into the workspace{src}."
 
 
-# CHAT ROUTER
-_INTENTS = [
-    (("maintenance", "service", "servicing", "repair log"), build_maintenance),
-    (("cause", "root cause", "corrective", "preventive"),   build_causes),
-    (("downtime", "outage", "stoppage", "breakdown"),        build_downtime),
-    (("machine", "equipment", "asset"),                      build_machines),
-]
-_DISPLAY_VERBS = ("show", "display", "list", "get", "view", "see", "fetch", "pull", "load", "give me", "what are")
-_WRITE_VERBS = {"add", "create", "insert", "new", "update", "edit", "change", "modify",
-                "set", "delete", "remove", "drop"}
+# ==========================================
+# CHAT ROUTER  (tool-based refresh — no keywords)
+# ==========================================
 
-def _builder_for(text: str):
-    """Return the build_* function for whichever table the message mentions"""
-    for keywords, builder in _INTENTS:
-        if any(k in text for k in keywords):
-            return builder
-    return None
+# Map each MCP tool name to the builder for the table it touches.
+# Any tool not listed here (e.g. a by-id lookup that doesn't change the view)
+# simply won't trigger a refresh.
+_TOOL_TABLE = {
+    # machines
+    "get_all_machines": build_machines,
+    "find_machines_by_name": build_machines,
+    "add_machine": build_machines,
+    "edit_machine": build_machines,
+    "remove_machine": build_machines,
+    # maintenance
+    "get_all_maintenance_logs": build_maintenance,
+    "find_maintenance_by_machine": build_maintenance,
+    "add_maintenance_log": build_maintenance,
+    "edit_maintenance_log": build_maintenance,
+    "remove_maintenance_log": build_maintenance,
+    # downtime events
+    "get_all_downtime_events": build_downtime,
+    "find_downtime_by_machine": build_downtime,
+    "add_downtime_event": build_downtime,
+    "edit_downtime_event": build_downtime,
+    "remove_downtime_event": build_downtime,
+    # downtime causes
+    "get_all_downtime_causes": build_causes,
+    "find_causes_by_downtime": build_causes,
+    "add_downtime_cause": build_causes,
+    "edit_downtime_cause": build_causes,
+    "remove_downtime_cause": build_causes,
+}
+
 
 def route_message(message: str):
     """
     Always let the LLM agent answer (dynamic, natural-language reply).
-    Separately, decide wether the workspace table should refresh.
-    Returns (view_or_none, reply_text) 
+    Refresh the workspace based on which TOOLS the agent actually called —
+    not on keywords. If several tables were touched, refresh the LAST one.
+
+    Returns (view_or_None, reply_text).
     """
+    result = run_agent(message)
 
-    text = message.lower()
+    # run_agent now returns {"reply": str, "tools_called": list[str]}
+    if isinstance(result, dict):
+        reply = result.get("reply", "")
+        tools_called = result.get("tools_called", [])
+    else:  # safety net if something returns a plain string
+        reply = str(result)
+        tools_called = []
 
-    #Actual conversation handled by LLM
-    reply = run_agent(message)
+    # Find the LAST called tool that maps to a table, and rebuild that view.
+    builder = None
+    for name in tools_called:                 # in call order
+        if name in _TOOL_TABLE:
+            builder = _TOOL_TABLE[name]        # keep overwriting -> ends on last
 
-    #Decide wether to refresh workspace table
-    builder = _builder_for(text)
-    is_display = any(v in text for v in _DISPLAY_VERBS)
-    is_write = any(v in text for v in _WRITE_VERBS)
-
-
-    if builder is not None and (is_display or is_write):
+    if builder is not None:
         view = builder()
         return view, reply
-    
+
     return None, reply
 
 
